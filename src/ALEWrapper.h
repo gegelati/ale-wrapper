@@ -33,7 +33,7 @@ public:
     /**
     * Constructor.
     */
-    ALEWrapper(std::string ROM_NAME, int actions) : LearningEnvironment(actions), screen(100800) {
+    ALEWrapper(std::string ROM_NAME, int actions) : LearningEnvironment(actions), screen(1344) {
         setAle(ROM_NAME);
 
         this->reset(0);
@@ -47,17 +47,17 @@ public:
     }
 
     void setAle(std::string ROM_NAME){
-        // Mutes ALE to be able to make a lot of ROM loading without flood
+        // Mute ALE to enable a lot of ROM loading without flood
         ale::Logger::setMode(ale::Logger::Error);
         // Set the desired settings
         ale.loadROM(ROM_NAME);
         ale.setInt("random_seed", 123);
-        // The default is already 0.25, this is just an example
-        ale.setFloat("repeat_action_probability", 0.25);
         ale.setBool("display_screen", false);
         ale.setBool("sound", false);
+        // putting the game in SECAM format will let only 8 colors remaining
+        ale.theOSystem->colourPalette().setPalette("standard", "SECAM");
 
-        // fianlly gets the legal actions set
+        // fianaly gets the legal actions set
         legal_actions = ale.getLegalActionSet();
     }
 

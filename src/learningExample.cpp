@@ -10,7 +10,7 @@
 
 #include <gegelati.h>
 
-#include "ALEAgent.h"
+#include "ALEWrapper.h"
 
 #ifndef NB_GENERATIONS
 #define NB_GENERATIONS 300
@@ -56,15 +56,16 @@ int main() {
     params.archiveSize = 50;
     params.maxNbActionsPerEval = 18000;
     params.nbIterationsPerPolicyEvaluation = 5;
-    params.ratioDeletedRoots = 0.5;
+    params.ratioDeletedRoots = 0.8;
 
-    ALEAgent le("roms/frostbite",18);
+    ALEWrapper le("roms/frostbite", 18);
 
 
     // Instantiate and init the learning agent
     Learn::ParallelLearningAgent la(le, set, params);
 
 // parallel -> 0 36 0 44.44 160 202.323;         3 47 0 142.22 160 2447.6
+// parallel with image modif -> 0 36 0 31.11 160 209.985
 // sequential -> 0 36 0 44.44 160 402.307
     la.init();
 

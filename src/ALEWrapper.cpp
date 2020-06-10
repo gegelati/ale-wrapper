@@ -13,12 +13,67 @@ void ALEWrapper::reset(size_t seed, Learn::LearningMode mode) {
 
 std::vector<std::reference_wrapper<const Data::DataHandler>> ALEWrapper::getDataSources() {
     std::vector<unsigned char> output_rgb_buffer;
-    ale.getScreenRGB(output_rgb_buffer);
+    // grayscale enables us to have a 8bit int defining the color
+    ale.getScreenGrayscale(output_rgb_buffer);
+
+    // original grid
+    int oWidth = 210;
+    int oHeight = 160;
+
+    // new grid
+    int nWidth = 42; // oWidth / 5
+    int nHeight = 32; // oHeight / 5
 
 
-    for (int i = 0; i < output_rgb_buffer.size(); i++) {
-        screen.setDataAt(typeid(double), i, (double) (output_rgb_buffer[i]));
-        //printf("%d -> %lf\n", i, (double) (output_rgb_buffer[i]));
+    // applying the 2 transformations described in :
+    // Kelly Stepje, SCALING GENETIC PROGRAMMING TO CHALLENGING REINFORCEMENT TASKS THROUGH EMERGENT MODULARITY, pages 98-99, 2018
+
+
+    // coordinates evolving in a 42*32 grid
+    for (int r = 0; r < nHeight; r++) {
+        for (int c = 0; c < nWidth; c++) {
+            int res = 0;
+
+            // coordinates in the original 210*160 grid
+            for (int y = r * 5; y < (r + 1) * 5; y++) {
+                // we take only half of the screen into consideration in a cross configuration
+                // it means we will increment x by 2 and it doesn't start at the same coordinate at each time
+                // drawing a simple 10x10 grid as example can empirically demonstrate it
+                int xDepart = (y + c) % 2 == 0 ? c * 5 + 1 : c * 5;
+                for (int x = xDepart; x < (c + 1) * 5; x += 2) {
+                    // now, define each bit of res according to the presence of a color
+                    switch (output_rgb_buffer[y * oWidth + x]) {
+                        case 255:
+                            res |= 128;
+                            break;
+                        case 233:
+                            res |= 64;
+                            break;
+                        case 217:
+                            res |= 32;
+                            break;
+                        case 188:
+                            res |= 16;
+                            break;
+                        case 152:
+                            res |= 8;
+                            break;
+                        case 121:
+                            res |= 4;
+                            break;
+                        case 58:
+                            res |= 2;
+                            break;
+                        case 0:
+                            res |= 1;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+            screen.setDataAt(typeid(double), r * nWidth + c, (double) res);
+        }
     }
 
     auto result = std::vector<std::reference_wrapper<const Data::DataHandler>>();
