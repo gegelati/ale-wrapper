@@ -33,3 +33,13 @@ double ALEWrapper::getScore() const {
 bool ALEWrapper::isTerminal() const {
     return ale.game_over();
 }
+
+bool ALEWrapper::isCopyable() const {
+    return true;
+}
+
+Learn::LearningEnvironment *ALEWrapper::clone() const {
+    // load rom : 5.6/s ! (=> 179 ms/)
+    // 1 x / thread : acceptable => OK !
+    return new ALEWrapper(this);
+}

@@ -40,13 +40,19 @@ public:
     };
 
 
+    /// Copy constructor, ale is not trivially copyable so we create another one
+    ALEWrapper(const ALEWrapper* other) : LearningEnvironment(other->legal_actions.size()), screen(other->screen), legal_actions(other->legal_actions) {
+        setAle(other->ale.theOSystem->romFile());
+        this->reset(0);
+    }
 
     void setAle(std::string ROM_NAME){
+        // Mutes ALE to be able to make a lot of ROM loading without flood
+        ale::Logger::setMode(ale::Logger::Error);
         // Set the desired settings
-        //ale::Logger::setMode(ale::Logger::Error);
         ale.loadROM(ROM_NAME);
         ale.setInt("random_seed", 123);
-        //The default is already 0.25, this is just an example
+        // The default is already 0.25, this is just an example
         ale.setFloat("repeat_action_probability", 0.25);
         ale.setBool("display_screen", false);
         ale.setBool("sound", false);
@@ -77,6 +83,11 @@ public:
     /// Inherited via LearningEnvironment
     virtual bool isTerminal() const override;
 
+    /// Inherited via LearningEnvironment
+    virtual bool isCopyable() const override;
+
+    /// Inherited via LearningEnvironment
+    virtual LearningEnvironment* clone() const override ;
 
 };
 
