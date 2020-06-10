@@ -20,21 +20,23 @@
 int main() {
     // Create the instruction set for programs
     Instructions::Set set;
-    auto minus = [](double a, double b)->double {return a - b; };
-    auto cast = [](double a, double b)->double {return a; };
-    auto add = [](double a, double b)->double {return a + b; };
-    auto max = [](double a, double b)->double {return std::max(a, b); };
-    auto nulltest = [](double a, double b)->double {return (a == 0.0) ? 10.0 : 0.0; };
-    auto modulo = [](double a, double b)->double {
-        if (b != 0.0) { return fmod(a, b); }
-        else { return  DBL_MIN; }	};
+    auto minus = [](double a, double b) -> double { return a - b; };
+    auto add = [](double a, double b) -> double { return a + b; };
+    auto times = [](double a, double b) -> double { return a * b; };
+    auto divide = [](double a, double b) -> double { return a / b; };
+    auto cos = [](double a, double b) -> double { return std::cos(a); };
+    auto ln = [](double a, double b) -> double { return std::log(a); };
+    auto exp = [](double a, double b) -> double { return std::exp(a); };
+    auto cond = [](double a, double b) -> double { return a < b ? -a : a; };
 
-    set.add(*(new Instructions::LambdaInstruction<double>(modulo)));
     set.add(*(new Instructions::LambdaInstruction<double>(minus)));
     set.add(*(new Instructions::LambdaInstruction<double>(add)));
-    set.add(*(new Instructions::LambdaInstruction<double>(cast)));
-    set.add(*(new Instructions::LambdaInstruction<double>(max)));
-    set.add(*(new Instructions::LambdaInstruction<double>(nulltest)));
+    set.add(*(new Instructions::LambdaInstruction<double>(times)));
+    set.add(*(new Instructions::LambdaInstruction<double>(divide)));
+    set.add(*(new Instructions::LambdaInstruction<double>(cos)));
+    set.add(*(new Instructions::LambdaInstruction<double>(ln)));
+    set.add(*(new Instructions::LambdaInstruction<double>(exp)));
+    set.add(*(new Instructions::LambdaInstruction<double>(cond)));
 
     // Set the parameters for the learning process.
     // (Controls mutations probability, program lengths, and graph size
@@ -81,17 +83,21 @@ int main() {
         sprintf(buff, "out_%03d.dot", i);
         dotExporter.setNewFilePath(buff);
         dotExporter.print();
-        std::multimap<std::shared_ptr<Learn::EvaluationResult>, const TPG::TPGVertex*> result;
+        std::multimap<std::shared_ptr<Learn::EvaluationResult>, const TPG::TPGVertex *> result;
         result = la.evaluateAllRoots(i, Learn::LearningMode::VALIDATION);
         auto iter = result.begin();
         double min = iter->first->getResult();
         std::advance(iter, result.size() - 1);
         double max = iter->first->getResult();
         double avg = std::accumulate(result.begin(), result.end(), 0.0,
-                                     [](double acc, std::pair<std::shared_ptr<Learn::EvaluationResult>, const TPG::TPGVertex*> pair)->double {return acc + pair.first->getResult(); });
+                                     [](double acc,
+                                        std::pair<std::shared_ptr<Learn::EvaluationResult>, const TPG::TPGVertex *> pair) -> double {
+                                         return acc + pair.first->getResult();
+                                     });
         avg /= result.size();
         printf("%3d\t%4" PRIu64 "\t%1.2lf\t%1.2lf\t%1.2lf\n", i, la.getTPGGraph().getNbVertices(), min, avg, max);
-        std::cout<<"elapsed time : "<<((std::chrono::duration<double>)(std::chrono::system_clock::now()-start)).count()<<std::endl;
+        std::cout << "elapsed time : "
+                  << ((std::chrono::duration<double>) (std::chrono::system_clock::now() - start)).count() << std::endl;
 
         la.trainOneGeneration(i);
 
