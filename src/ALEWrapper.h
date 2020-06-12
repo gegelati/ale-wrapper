@@ -33,27 +33,32 @@ public:
     /**
     * Constructor.
     */
-    ALEWrapper(std::string ROM_NAME, int actions) : LearningEnvironment(actions), screen(1344) {
-        setAle(ROM_NAME);
+    ALEWrapper(std::string ROM_NAME, int actions, bool display = false) : LearningEnvironment(actions), screen(1344) {
+        setAle(ROM_NAME, display);
 
         this->reset(0);
     };
 
 
     /// Copy constructor, ale is not trivially copyable so we create another one
-    ALEWrapper(const ALEWrapper* other) : LearningEnvironment(other->legal_actions.size()), screen(other->screen), legal_actions(other->legal_actions) {
-        setAle(other->ale.theOSystem->romFile());
+    ALEWrapper(const ALEWrapper *other) : LearningEnvironment(other->legal_actions.size()), screen(other->screen),
+                                          legal_actions(other->legal_actions) {
+        setAle(other->ale.theOSystem->romFile(), false);
         this->reset(0);
     }
 
-    void setAle(std::string ROM_NAME){
+    /// Sets the configs of the ALE
+    void setAle(std::string ROM_NAME, bool display) {
         // Mute ALE to enable a lot of ROM loading without flood
         ale::Logger::setMode(ale::Logger::Error);
         // Set the desired settings
-        ale.loadROM(ROM_NAME);
         ale.setInt("random_seed", 123);
-        ale.setBool("display_screen", false);
-        ale.setBool("sound", false);
+        ale.setBool("display_screen", display);
+        ale.setBool("sound", display);
+        ale.loadROM(ROM_NAME);
+        ale.setMode(ale.getAvailableModes()[0]);
+        ale.setDifficulty(ale.getAvailableDifficulties()[0]);
+
         // putting the game in SECAM format will let only 8 colors remaining
         ale.theOSystem->colourPalette().setPalette("standard", "SECAM");
 
@@ -63,6 +68,9 @@ public:
 
     /// Destructor
     ~ALEWrapper() {};
+
+    /// Does a given move; used when not learning
+    virtual void play(uint64_t actionID);
 
     /// Inherited via LearningEnvironment
     virtual void doAction(uint64_t actionID) override;
@@ -87,7 +95,10 @@ public:
     virtual bool isCopyable() const override;
 
     /// Inherited via LearningEnvironment
-    virtual LearningEnvironment* clone() const override ;
+    virtual LearningEnvironment *clone() const override;
+
+    /// returns the screen in unicode U25A0, used for debug purpose
+    std::string toString() const;
 
 };
 
