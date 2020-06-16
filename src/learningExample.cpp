@@ -11,6 +11,7 @@
 #include <gegelati.h>
 
 #include "ALEWrapper.h"
+#include "replay.h"
 
 #ifndef NB_GENERATIONS
 #define NB_GENERATIONS 2000
@@ -64,11 +65,7 @@ int main() {
 
 
     // Instantiate and init the learning agent
-    Learn::ParallelLearningAgent la(le, set, params,12,8);
-
-// parallel -> 0 36 0 44.44 160 202.323;         3 47 0 142.22 160 2447.6
-// parallel with image modif -> 0 36 0 31.11 160 209.985
-// sequential -> 0 36 0 44.44 160 402.307
+    Learn::LearningAgent la(le, set, params,8);
     la.init();
 
 
@@ -119,6 +116,12 @@ int main() {
     // cleanup
     for (unsigned int i = 0; i < set.getNbInstructions(); i++) {
         delete (&set.getInstruction(i));
+    }
+
+    // if we want to test the best agent
+    if (true) {
+        agentTest();
+        return 0;
     }
 
     return 0;
