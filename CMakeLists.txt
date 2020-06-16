@@ -94,11 +94,30 @@ file(GLOB_RECURSE
 
 include_directories(${GEGELATI_INCLUDE_DIRS})
 
-add_executable(${PROJECT_NAME} ${ALEGelati_files} src/learningExample.cpp src/replay.cpp)
+add_executable(${PROJECT_NAME} ${ALEGelati_files} src/learningExample.cpp src/replay.cpp src/replay.h)
 target_link_libraries(${PROJECT_NAME} ${GEGELATI_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} ale::ale-lib)
 
+# download fishing derby
+file(DOWNLOAD www.atarimania.com/pgedump.awp?id=13881 ../roms/fishingDerb.7z)
+execute_process(COMMAND ${CMAKE_COMMAND} -E tar -xf fishingDerb.7z
+        WORKING_DIRECTORY ../roms)
+file(RENAME "roms/Fishing Derby (Canal 3 - Intellivision).bin" roms/fishing_derby)
+file(REMOVE "roms/fishingDerb.7z")
 
+# download frostbite
+file(DOWNLOAD http://www.atarimania.com/pgedump.awp?id=11601 ../roms/frostbite.7z)
+execute_process(COMMAND ${CMAKE_COMMAND} -E tar -xf frostbite.7z
+        WORKING_DIRECTORY ../roms)
+file(RENAME "roms/Frostbite.bin" roms/frostbite)
+file(REMOVE "roms/frostbite.7z")
+
+# download asteroids
+file(DOWNLOAD http://www.atarimania.com/pgedump.awp?id=7379 ../roms/asteroids.7z)
+execute_process(COMMAND ${CMAKE_COMMAND} -E tar -xf asteroids.7z
+        WORKING_DIRECTORY ../roms)
+file(RENAME "roms/Asteroids.bin" roms/asteroids)
+file(REMOVE "roms/asteroids.7z")
 
 #################
 #

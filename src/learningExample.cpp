@@ -65,7 +65,7 @@ int main() {
 
 
     // Instantiate and init the learning agent
-    Learn::LearningAgent la(le, set, params,8);
+    Learn::ParallelLearningAgent la(le, set, params,12,8);
     la.init();
 
 
