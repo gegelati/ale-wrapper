@@ -97,6 +97,9 @@ public:
     /// Inherited via LearningEnvironment
     virtual LearningEnvironment *clone() const override;
 
+    /// Updates the screen according to the current frame of the game
+    void updateScreen();
+
     /// returns the screen in unicode U25A0, used for debug purpose
     std::string toString() const;
 

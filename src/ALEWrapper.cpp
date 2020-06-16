@@ -2,11 +2,13 @@
 
 void ALEWrapper::play(uint64_t actionID) {
     ale.act(legal_actions[actionID]);
+    updateScreen();
 }
 
 void ALEWrapper::doAction(uint64_t actionID) {
     float reward = ale.act(legal_actions[actionID]);
     this->totalReward += reward;
+    updateScreen();
 }
 
 void ALEWrapper::reset(size_t seed, Learn::LearningMode mode) {
@@ -16,6 +18,16 @@ void ALEWrapper::reset(size_t seed, Learn::LearningMode mode) {
 }
 
 std::vector<std::reference_wrapper<const Data::DataHandler>> ALEWrapper::getDataSources() {
+    updateScreen();
+
+    auto result = std::vector<std::reference_wrapper<const Data::DataHandler>>({screen});
+    if (ale.getFrameNumber() == 125)
+        std::cout << toString() << std::endl;
+
+    return result;
+}
+
+void ALEWrapper::updateScreen() {
     std::vector<unsigned char> output_rgb_buffer;
     // grayscale enables us to have a 8bit int defining the color
     ale.getScreenGrayscale(output_rgb_buffer);
@@ -44,9 +56,9 @@ std::vector<std::reference_wrapper<const Data::DataHandler>> ALEWrapper::getData
                 // it means we will increment x by 2 and it doesn't start at the same coordinate at each time
                 // drawing a simple 10x10 grid as example can demonstrate it
                 int xDepart = (y + c) % 2 == 0 ? c * 5 + 1 : c * 5;
-                for (int x = xDepart; x < (c + 1) * 5; x +=2) {
+                for (int x = xDepart; x < (c + 1) * 5; x += 2) {
                     // now, define each bit of res according to the presence of a color
-                    switch (output_rgb_buffer[y*oWidth  + x]) {
+                    switch (output_rgb_buffer[y * oWidth + x]) {
                         case 255:
                             res |= 128;
                             break;
@@ -76,16 +88,9 @@ std::vector<std::reference_wrapper<const Data::DataHandler>> ALEWrapper::getData
                     }
                 }
             }
-            screen.setDataAt(typeid(double), r*nWidth + c, (double) res);
+            screen.setDataAt(typeid(double), r * nWidth + c, (double) res);
         }
     }
-
-    auto result = std::vector<std::reference_wrapper<const Data::DataHandler>>();
-    result.push_back(screen);
-    /*if(ale.getFrameNumber()==160)
-    std::cout<<toString()<<std::endl;*/
-
-    return result;
 }
 
 
@@ -113,8 +118,9 @@ std::string ALEWrapper::toString() const {
 
     for (int r = 0; r < 42; r++) {
         for (int c = 0; c < 32; c++) {
-            double val = (double) *(screen.getDataAt(typeid(double), c + r*32).getSharedPointer<const double>());
-            std::string toAdd = val <= 2.0 ? "■" : " ";
+            double val = (double) *(screen.getDataAt(typeid(double), c + r * 32).getSharedPointer<const double>());
+            std::string toAdd =
+                    val > 1.0 ? val > 16 ? val > 32 ? val > 64 ? val > 128 ? "■" : "▦" : "▧" : "▣" : "□" : " ";
             res << toAdd << " ";
 
         }
