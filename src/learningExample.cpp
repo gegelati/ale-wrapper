@@ -13,10 +13,9 @@
 #include "ALEWrapper.h"
 
 #ifndef NB_GENERATIONS
-#define NB_GENERATIONS 300
+#define NB_GENERATIONS 2000
 #endif
 
-// best speed : 7614.68s for 18 gene (42 vertices, 0-106.67-160 with best avg 148057 at G 5 time 1721.01 47 vertices)
 int main() {
     // Create the instruction set for programs
     Instructions::Set set;
@@ -24,47 +23,48 @@ int main() {
     auto add = [](double a, double b) -> double { return a + b; };
     auto times = [](double a, double b) -> double { return a * b; };
     auto divide = [](double a, double b) -> double { return a / b; };
-    auto cos = [](double a, double b) -> double { return std::cos(a); };
-    auto ln = [](double a, double b) -> double { return std::log(a); };
-    auto exp = [](double a, double b) -> double { return std::exp(a); };
     auto cond = [](double a, double b) -> double { return a < b ? -a : a; };
+    auto cos = [](double a) -> double { return std::cos(a); };
+    auto ln = [](double a) -> double { return std::log(a); };
+    auto exp = [](double a) -> double { return std::exp(a); };
 
-    set.add(*(new Instructions::LambdaInstruction<double>(minus)));
-    set.add(*(new Instructions::LambdaInstruction<double>(add)));
-    set.add(*(new Instructions::LambdaInstruction<double>(times)));
-    set.add(*(new Instructions::LambdaInstruction<double>(divide)));
+    set.add(*(new Instructions::LambdaInstruction<double, double>(minus)));
+    set.add(*(new Instructions::LambdaInstruction<double, double>(add)));
+    set.add(*(new Instructions::LambdaInstruction<double, double>(times)));
+    set.add(*(new Instructions::LambdaInstruction<double, double>(divide)));
+    set.add(*(new Instructions::LambdaInstruction<double, double>(cond)));
     set.add(*(new Instructions::LambdaInstruction<double>(cos)));
     set.add(*(new Instructions::LambdaInstruction<double>(ln)));
     set.add(*(new Instructions::LambdaInstruction<double>(exp)));
-    set.add(*(new Instructions::LambdaInstruction<double>(cond)));
 
     // Set the parameters for the learning process.
     // (Controls mutations probability, program lengths, and graph size
     // among other things)
     Learn::LearningParameters params;
-    params.mutation.tpg.maxInitOutgoingEdges = 3;
-    params.mutation.tpg.nbRoots = 50;
+    params.mutation.tpg.maxInitOutgoingEdges = 5;
+    params.mutation.tpg.nbRoots = 360;
     params.mutation.tpg.pEdgeDeletion = 0.7;
     params.mutation.tpg.pEdgeAddition = 0.7;
     params.mutation.tpg.pProgramMutation = 0.2;
     params.mutation.tpg.pEdgeDestinationChange = 0.1;
     params.mutation.tpg.pEdgeDestinationIsAction = 0.5;
-    params.mutation.tpg.maxOutgoingEdges = 5;
+    params.mutation.tpg.maxOutgoingEdges = 999;
     params.mutation.prog.pAdd = 0.5;
     params.mutation.prog.pDelete = 0.5;
     params.mutation.prog.pMutate = 1.0;
     params.mutation.prog.pSwap = 1.0;
-    params.mutation.prog.maxProgramSize = 20;
+    params.mutation.prog.maxProgramSize = 96;
     params.archiveSize = 50;
     params.maxNbActionsPerEval = 18000;
     params.nbIterationsPerPolicyEvaluation = 5;
+    params.maxNbEvaluationPerPolicy = 10;
     params.ratioDeletedRoots = 0.8;
 
     ALEWrapper le("roms/frostbite", 18);
 
 
     // Instantiate and init the learning agent
-    Learn::ParallelLearningAgent la(le, set, params);
+    Learn::ParallelLearningAgent la(le, set, params,12,8);
 
 // parallel -> 0 36 0 44.44 160 202.323;         3 47 0 142.22 160 2447.6
 // parallel with image modif -> 0 36 0 31.11 160 209.985
@@ -77,9 +77,12 @@ int main() {
 
     auto start = std::chrono::system_clock::now();
     // Train for NB_GENERATIONS generations
-    printf("Gen\tNbVert\tMin\tAvg\tMax\n");
+    printf("Gen\tNbVert\tMin\tAvg\tMax\tDuration(eval)\tDuration(training)\tTotal_time\n");
     for (int i = 0; i < NB_GENERATIONS; i++) {
-        char buff[12];
+        auto evalBegin = std::chrono::system_clock::now();
+
+
+        char buff[16];
         sprintf(buff, "out_%03d.dot", i);
         dotExporter.setNewFilePath(buff);
         dotExporter.print();
@@ -95,12 +98,17 @@ int main() {
                                          return acc + pair.first->getResult();
                                      });
         avg /= result.size();
-        printf("%3d\t%4" PRIu64 "\t%1.2lf\t%1.2lf\t%1.2lf\n", i, la.getTPGGraph().getNbVertices(), min, avg, max);
-        std::cout << "elapsed time : "
-                  << ((std::chrono::duration<double>) (std::chrono::system_clock::now() - start)).count() << std::endl;
+
+        auto evalEnd = std::chrono::system_clock::now();
+        double tEval = ((std::chrono::duration<double>) (evalEnd - evalBegin)).count();
 
         la.trainOneGeneration(i);
 
+        double tTraining = ((std::chrono::duration<double>) (std::chrono::system_clock::now() - evalEnd)).count();
+        double tTotal = ((std::chrono::duration<double>) (std::chrono::system_clock::now() - start)).count();
+        printf("%3d\t%4" PRIu64 "\t%1.2lf\t%1.2lf\t%1.2lf\t%1.2lf\t%1.2lf\t%1.2lf\n", i,
+               la.getTPGGraph().getNbVertices(), min, avg,
+               max, tEval, tTraining, tTotal);
     }
 
     // Keep best policy
