@@ -15,6 +15,8 @@ void ALEWrapper::reset(size_t seed, Learn::LearningMode mode) {
     this->totalReward = 0.0;
     // resets the game but not the full system
     ale.reset_game();
+
+    ale.setInt("random_seed", seed);
 }
 
 std::vector<std::reference_wrapper<const Data::DataHandler>> ALEWrapper::getDataSources() {
