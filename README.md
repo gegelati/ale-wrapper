@@ -57,5 +57,7 @@ target_compile_options(ale
 ## How does this work ?
 The ale-wrapper is built to hide the ALE part, so the main file which handles the library call is really close to the ones written for other Gegelati applications, see [GEGELATI-APPS](https://github.com/gegelati/gegelati-apps) for examples. There is also an example called "learningExample" in this repository.
 
+Warning : the ALE simulation can take a while and with for ex. a configuration of 1000 roots, you'll do at least 1000 simulations. Be aware it could take a lot of time, like 1000s per generation.
+
 ## License
 This project is distributed under the CeCILL-C license (see LICENSE file).

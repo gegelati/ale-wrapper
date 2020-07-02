@@ -33,7 +33,7 @@ int agentTest() {
     set.add(*(new Instructions::LambdaInstruction<double>(exp)));
 
     // Instantiate the LearningEnvironment
-    auto le = ALEWrapper("roms/frostbite",18,false);
+    auto le = ALEWrapper("roms/frostbite",18,true);
 
 
     Environment env(set, le.getDataSources(), 8);
@@ -42,7 +42,7 @@ int agentTest() {
     TPG::TPGExecutionEngine tee(env);
 
     // Create an importer for the best graph
-    File::TPGGraphDotImporter dotImporter("out_best.dot", env, tpg);
+    File::TPGGraphDotImporter dotImporter("out_686.dot", env, tpg);
 
     dotImporter.importGraph();
 
