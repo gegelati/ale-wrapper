@@ -1,0 +1,34 @@
+{
+	"nbGenerations" : 20000,
+    "archiveSize" : 50,
+    "archivingProbability" : 0.05,
+    "nbIterationsPerPolicyEvaluation" : 1,
+    "maxNbActionsPerEval" : 18000,
+    "ratioDeletedRoots" : 0.97,
+    "maxNbEvaluationPerPolicy" : 1,
+	"doValidation" : true,
+
+    "mutation":
+    {
+	    "tpg" :
+	    {
+	    	"nbRoots" : 1000,
+	    	"maxInitOutgoingEdges" : 5,
+	    	"maxOutgoingEdges" : 999,
+	    	"pEdgeDeletion" : 0.7,
+	    	"pEdgeAddition" : 0.7,
+	    	"pProgramMutation" : 0.2,
+	    	"pEdgeDestinationChange" : 0.1,
+	    	"pEdgeDestinationIsAction" : 0.5
+	    },
+
+	    "prog" :
+	    {
+	        "maxProgramSize" : 96,
+	        "pDelete" : 0.5,
+	        "pAdd" : 0.5,
+	        "pMutate" : 1.0,
+	        "pSwap" : 1.0
+	    }
+    }
+}

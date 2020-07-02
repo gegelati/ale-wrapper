@@ -23,8 +23,6 @@ std::vector<std::reference_wrapper<const Data::DataHandler>> ALEWrapper::getData
     updateScreen();
 
     auto result = std::vector<std::reference_wrapper<const Data::DataHandler>>({screen});
-    if (ale.getFrameNumber() == 125)
-        std::cout << toString() << std::endl;
 
     return result;
 }
@@ -50,7 +48,7 @@ void ALEWrapper::updateScreen() {
     // coordinates evolving in a 42*32 grid
     for (int r = 0; r < nHeight; r++) {
         for (int c = 0; c < nWidth; c++) {
-            int res = 0;
+            uint8_t res = 0;
 
             // coordinates in the original 210*160 grid
             for (int y = r * 5; y < (r + 1) * 5; y++) {
@@ -62,28 +60,28 @@ void ALEWrapper::updateScreen() {
                     // now, define each bit of res according to the presence of a color
                     switch (output_rgb_buffer[y * oWidth + x]) {
                         case 255:
-                            res |= 128;
+                            res |= (uint8_t) 128;
                             break;
                         case 233:
-                            res |= 64;
+                            res |= (uint8_t) 64;
                             break;
                         case 217:
-                            res |= 32;
+                            res |= (uint8_t) 32;
                             break;
                         case 188:
-                            res |= 16;
+                            res |= (uint8_t) 16;
                             break;
                         case 152:
-                            res |= 8;
+                            res |= (uint8_t) 8;
                             break;
                         case 121:
-                            res |= 4;
+                            res |= (uint8_t) 4;
                             break;
                         case 58:
-                            res |= 2;
+                            res |= (uint8_t) 2;
                             break;
                         case 0:
-                            res |= 1;
+                            res |= (uint8_t) 1;
                             break;
                         default:
                             break;
