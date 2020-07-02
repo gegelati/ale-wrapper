@@ -42,30 +42,13 @@ int main() {
     // (Controls mutations probability, program lengths, and graph size
     // among other things)
     Learn::LearningParameters params;
-    params.mutation.tpg.maxInitOutgoingEdges = 5;
-    params.mutation.tpg.nbRoots = 360;
-    params.mutation.tpg.pEdgeDeletion = 0.7;
-    params.mutation.tpg.pEdgeAddition = 0.7;
-    params.mutation.tpg.pProgramMutation = 0.2;
-    params.mutation.tpg.pEdgeDestinationChange = 0.1;
-    params.mutation.tpg.pEdgeDestinationIsAction = 0.5;
-    params.mutation.tpg.maxOutgoingEdges = 999;
-    params.mutation.prog.pAdd = 0.5;
-    params.mutation.prog.pDelete = 0.5;
-    params.mutation.prog.pMutate = 1.0;
-    params.mutation.prog.pSwap = 1.0;
-    params.mutation.prog.maxProgramSize = 96;
-    params.archiveSize = 50;
-    params.maxNbActionsPerEval = 18000;
-    params.nbIterationsPerPolicyEvaluation = 5;
-    params.maxNbEvaluationPerPolicy = 10;
-    params.ratioDeletedRoots = 0.8;
+    File::ParametersParser::loadParametersFromJson(ROOT_DIR "/params.json",params);
 
     ALEWrapper le("roms/frostbite", 18);
 
 
     // Instantiate and init the learning agent
-    Learn::ParallelLearningAgent la(le, set, params,12,8);
+    Learn::ParallelLearningAgent la(le, set, params);
     la.init();
 
 
