@@ -40,23 +40,28 @@ int main() {
     Learn::LearningParameters params;
     File::ParametersParser::loadParametersFromJson(ROOT_DIR "/params.json",params);
 
-    ALEWrapper le("roms/frostbite", 18);
+    ALEWrapper le(ROOT_DIR "/roms/frostbite", 18);
 
 
     // Instantiate and init the learning agent
     Learn::ParallelLearningAgent la(le, set, params);
     la.init();
 
-    Log::LABasicLogger l(std::cout);
-    la.addLogger(l);
 
+    // Basic Logger
+    Log::LABasicLogger log(la, std::cout);
+
+    // File for logging best policy stat.
+    std::ofstream stats;
+    stats.open("bestPolicyStats.md");
+    Log::LAPolicyStatsLogger logStats(la, stats);
 
     // Create an exporter for all graphs
     File::TPGGraphDotExporter dotExporter("out_000.dot", la.getTPGGraph());
     // Train for NB_GENERATIONS generations
     for (int i = 0; i < params.nbGenerations; i++) {
         char buff[16];
-        sprintf(buff, "out_%03d.dot", i);
+        sprintf(buff, "out_%04d.dot", i);
         dotExporter.setNewFilePath(buff);
         dotExporter.print();
         la.trainOneGeneration(i);
