@@ -4,6 +4,7 @@
 #include <string>
 #include <cfloat>
 #include <inttypes.h>
+#include <getopt.h>
 
 #include <chrono>
 #include <ctime>
@@ -13,7 +14,22 @@
 #include "ALEWrapper.h"
 #include "replay.h"
 
-int main() {
+int main(int argc, char ** argv) {
+
+    char option;
+    uint64_t seed = 0;
+    char rom[50];
+    strcpy(rom, "frostbite");
+    while((option = getopt(argc, argv, "s:r:")) != -1){
+        switch (option) {
+            case 's': seed= atoi(optarg); break;
+            case 'r': strcpy(rom, optarg); break;
+            default: std::cout << "Unrecognised option. Valid option is \'-s seed\'." << std::endl; exit(1);
+        }
+    }
+    std::cout << "Selected seed : " << seed << std::endl;
+    std::cout << "Selected ROM: "  << rom << std::endl;
+
     // Create the instruction set for programs
     Instructions::Set set;
     auto minus = [](double a, double b) -> double { return a - b; };
@@ -38,38 +54,48 @@ int main() {
     // (Controls mutations probability, program lengths, and graph size
     // among other things)
     Learn::LearningParameters params;
-    File::ParametersParser::loadParametersFromJson(ROOT_DIR "/params.json",params);
+    File::ParametersParser::loadParametersFromJson(ROOT_DIR "/params-kelly.json",params);
 
-    ALEWrapper le(ROOT_DIR "/roms/frostbite", 18);
+    char romPath[50];
+    sprintf(romPath, ROOT_DIR "/roms/%s", rom);
+    ALEWrapper le(romPath, 18);
 
 
     // Instantiate and init the learning agent
     Learn::ParallelLearningAgent la(le, set, params);
-    la.init();
-
+    la.init(seed);
 
     // Basic Logger
-    Log::LABasicLogger log(la, std::cout);
+    char logPath[50];
+    sprintf(logPath, "out.%s.%d.std", rom, seed);
+    std::ofstream logStream;
+    logStream.open(logPath);
+    Log::LABasicLogger log(la, logStream);
 
     // File for logging best policy stat.
+    char bestPolicyStatsPath[50];
+    sprintf(bestPolicyStatsPath, "bestPolicyStats.%s.%d.md", rom, seed);
     std::ofstream stats;
-    stats.open("bestPolicyStats.md");
+    stats.open(bestPolicyStatsPath);
     Log::LAPolicyStatsLogger logStats(la, stats);
 
     // Create an exporter for all graphs
-    File::TPGGraphDotExporter dotExporter("out_000.dot", la.getTPGGraph());
+    char dotPath[50];
+    sprintf(dotPath, "out_0000.%s.%d.dot", rom, seed);
+    File::TPGGraphDotExporter dotExporter(dotPath, la.getTPGGraph());
     // Train for NB_GENERATIONS generations
     for (int i = 0; i < params.nbGenerations; i++) {
-        char buff[16];
-        sprintf(buff, "out_%04d.dot", i);
-        dotExporter.setNewFilePath(buff);
+        sprintf(dotPath, "out_%04d.%s.%d.dot", i, rom, seed);
+        dotExporter.setNewFilePath(dotPath);
         dotExporter.print();
         la.trainOneGeneration(i);
     }
 
     // Keep best policy
     la.keepBestPolicy();
-    dotExporter.setNewFilePath("out_best.dot");
+    char bestDot[50];
+    sprintf(bestDot, "out_best.%s.dot", rom);
+    dotExporter.setNewFilePath(bestDot);
     dotExporter.print();
 
     // cleanup
@@ -78,7 +104,7 @@ int main() {
     }
 
     // if we want to test the best agent
-    if (true) {
+    if (false) {
         agentTest();
         return 0;
     }
