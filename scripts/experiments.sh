@@ -17,7 +17,7 @@ for game in "${games[@]}"; do
         if $seedsInParallel; then
             echo "Launch games in parallel"
             for i in ${seeds[*]}; do
-                 ../build/Release/ALEGegelati -s $i -r $game -p $threads 2> /dev/null &
+                 ../build/Release/ALEGegelati -s $i -r $game -p $threads 1>dirtyLog 2> /dev/null &
                  pids[${i}]=$!
             done
 
@@ -28,9 +28,11 @@ for game in "${games[@]}"; do
         else
             echo "Launch games sequentially"
             for i in ${seeds[*]}; do
-                ../build/Release/ALEGegelati -s $i -r $game -p $threads 2> /dev/null
+                ../build/Release/ALEGegelati -s $i -r $game -p $threads 1>dirtyLog 2> /dev/null
+                # Print last line of log
+                id=$(printf "%02d" $threads)
+                tail -n 1 "out.$game.$i.t$id.std"
             done
-
         fi
     done
 done
