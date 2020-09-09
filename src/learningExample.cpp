@@ -99,7 +99,7 @@ int main(int argc, char ** argv) {
     // Keep best policy
     la.keepBestPolicy();
     char bestDot[50];
-    sprintf(bestDot, "out_best.%s.%d.t%20d.dot", rom, seed, nbThreads);
+    sprintf(bestDot, "out_best.%s.%d.t%02d.dot", rom, seed, nbThreads);
     dotExporter.setNewFilePath(bestDot);
     dotExporter.print();
 
