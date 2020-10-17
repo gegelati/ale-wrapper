@@ -20,7 +20,7 @@
 	    	"pEdgeDeletion" : 0.7,
 	    	"pEdgeAddition" : 0.7,
 	    	"pProgramMutation" : 0.2,
-                "forceProgramBehaviorChangeOnMutation": true,
+            "forceProgramBehaviorChangeOnMutation": true,
 	    	"pEdgeDestinationChange" : 0.1,
 	    	"pEdgeDestinationIsAction" : 0.5
 	    },

@@ -32,7 +32,7 @@ int main(int argc, char ** argv) {
     }
     std::cout << "Selected seed : " << seed << std::endl;
     std::cout << "Selected ROM: "  << rom << std::endl;
-    std::cout << "Selected NbThreads: " << nbThreads;
+    std::cout << "Selected NbThreads: " << nbThreads << std::endl;
 
     // Create the instruction set for programs
     Instructions::Set set;
@@ -58,7 +58,7 @@ int main(int argc, char ** argv) {
     // (Controls mutations probability, program lengths, and graph size
     // among other things)
     Learn::LearningParameters params;
-    File::ParametersParser::loadParametersFromJson(ROOT_DIR "/params-kelly.json",params);
+    File::ParametersParser::loadParametersFromJson(ROOT_DIR "/params.json",params);
     params.nbThreads = nbThreads;
 
     char romPath[50];
