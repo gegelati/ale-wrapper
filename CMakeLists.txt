@@ -21,10 +21,8 @@ if(NOT ${CMAKE_GENERATOR} MATCHES "Visual Studio.*")
     # Link with pthread
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 
-    # Set to 1 to activate debug compilation (0 for release)
-    set(DEBUG 0)
-
-    if(${DEBUG})
+    # Debug or release
+    if(CMAKE_BUILD_TYPE MATCHES "Debug")
         MESSAGE("Generate Debug project")
         set(CMAKE_BUILD_TYPE Debug)
         set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Debug)
