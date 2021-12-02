@@ -20,19 +20,23 @@ int main(int argc, char ** argv) {
     char option;
     uint64_t seed = 0;
     char rom[50];
+    char paramFile[150];
     size_t nbThreads = std::thread::hardware_concurrency();
     strcpy(rom, "frostbite");
-    while((option = getopt(argc, argv, "s:r:p:")) != -1){
+    strcpy(paramFile, ROOT_DIR "/params.json");
+    while((option = getopt(argc, argv, "s:r:p:c:")) != -1){
         switch (option) {
             case 's': seed= atoi(optarg); break;
             case 'r': strcpy(rom, optarg); break;
             case 'p': nbThreads = atoi(optarg); break;
-            default: std::cout << "Unrecognised option. Valid options are \'-s seed\' \'-r romName\' \'-p nbThreads\'." << std::endl; exit(1);
+            case 'c': strcpy(paramFile, optarg); break;
+            default: std::cout << "Unrecognised option. Valid options are \'-s seed\' \'-r romName\' \'-p nbThreads\' \'-c paramFile.json\'." << std::endl; exit(1);
         }
     }
     std::cout << "Selected seed : " << seed << std::endl;
     std::cout << "Selected ROM: "  << rom << std::endl;
     std::cout << "Selected NbThreads: " << nbThreads << std::endl;
+    std::cout << "Selected params: " << paramFile << std::endl;
 
     // Create the instruction set for programs
     Instructions::Set set;
@@ -58,7 +62,7 @@ int main(int argc, char ** argv) {
     // (Controls mutations probability, program lengths, and graph size
     // among other things)
     Learn::LearningParameters params;
-    File::ParametersParser::loadParametersFromJson(ROOT_DIR "/params.json",params);
+    File::ParametersParser::loadParametersFromJson(paramFile,params);
     params.nbThreads = nbThreads;
 
     char romPath[50];

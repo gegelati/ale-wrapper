@@ -14,7 +14,7 @@
     {
         "tpg" :
         {
-            "forceProgramBehaviorChangeOnMutation": true,
+            "forceProgramBehaviorChangeOnMutation": false,
             "nbRoots" : 500,
             "maxInitOutgoingEdges" : 5,
             "maxOutgoingEdges" : 5,

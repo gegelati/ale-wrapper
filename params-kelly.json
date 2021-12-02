@@ -1,12 +1,12 @@
 {
-    "nbGenerations" : 50,
+    "nbGenerations" : 400,
     "archiveSize" : 50,
     "archivingProbability" : 0.0005,
     "nbIterationsPerPolicyEvaluation" : 1,
     "maxNbActionsPerEval" : 18000,
     "ratioDeletedRoots" : 0.5,
     "maxNbEvaluationPerPolicy" : 1,
-    "doValidation" : false,
+    "doValidation" : true,
     "nbThreads": 1,
     "nbRegisters": 8,
 
@@ -20,7 +20,7 @@
 	    	"pEdgeDeletion" : 0.7,
 	    	"pEdgeAddition" : 0.7,
 	    	"pProgramMutation" : 0.2,
-            "forceProgramBehaviorChangeOnMutation": true,
+                "forceProgramBehaviorChangeOnMutation": false,
 	    	"pEdgeDestinationChange" : 0.1,
 	    	"pEdgeDestinationIsAction" : 0.5
 	    },
