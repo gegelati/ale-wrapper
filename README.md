@@ -18,6 +18,7 @@ To install it, you can execute the following commands :
 $ git clone https://github.com/mgbellemare/Arcade-Learning-Environment.git
 $ sudo apt-get install libsdl1.2-dev libsdl-gfx1.2-dev libsdl-image1.2-dev cmake # On Linux
 $ cd Arcade-Learning-Environment
+$ git reset --hard d3f2b25 # back to the last tested version.
 $ mkdir build && cd build
 $ cmake -DUSE_SDL=ON -DUSE_RLGLUE=OFF -DBUILD_EXAMPLES=ON ..
 $ cmake --build . --target INSTALL # On Windows
@@ -26,7 +27,7 @@ $ cmake --build . --target install # On Linux
 
 Finally, you can build this project with an IDE of using some commands like :
 ```
-$ git clone https://github.com/gegelati/ale-wrapper.git
+$ git clone https://github.com/gegelati/ale-wrapper.git 
 $ cd ale-wrapper/cmake-build-release && cmake ..
 $ Release/ALEGegelati
 ```
