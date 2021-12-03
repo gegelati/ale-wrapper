@@ -102,10 +102,25 @@ int main(int argc, char ** argv) {
 
     // Keep best policy
     la.keepBestPolicy();
+
+    // Clear introns instructions
+    la.getTPGGraph().clearProgramIntrons();
     char bestDot[50];
+
+    // Export the graph
     sprintf(bestDot, "out_best.%s.%d.t%02d.dot", rom, seed, nbThreads);
     dotExporter.setNewFilePath(bestDot);
     dotExporter.print();
+
+    TPG::PolicyStats ps;
+    ps.setEnvironment(la.getTPGGraph().getEnvironment());
+    ps.analyzePolicy(la.getBestRoot().first);
+    std::ofstream bestStats;
+    sprintf(bestPolicyStatsPath, "out_best_stats.%s.%d.t%02d.md", rom, seed, nbThreads);
+    bestStats.open(bestPolicyStatsPath);
+    bestStats << ps;
+    bestStats.close();
+    stats.close();
 
     // cleanup
     for (unsigned int i = 0; i < set.getNbInstructions(); i++) {
