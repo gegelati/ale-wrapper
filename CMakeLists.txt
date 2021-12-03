@@ -92,22 +92,28 @@ file(GLOB_RECURSE
 
 include_directories(${GEGELATI_INCLUDE_DIRS})
 
-add_executable(${PROJECT_NAME} ${ALEGelati_files} src/learningExample.cpp src/replay.cpp src/replay.h)
+add_executable(${PROJECT_NAME} ${ALEGelati_files})
 target_link_libraries(${PROJECT_NAME} ${GEGELATI_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} ale::ale-lib)
 
 # download fishing derby
-file(DOWNLOAD www.atarimania.com/pgedump.awp?id=13881 ../roms/fishingDerb.7z)
-execute_process(COMMAND ${CMAKE_COMMAND} -E tar -xf fishingDerb.7z
-        WORKING_DIRECTORY ../roms)
-file(RENAME "roms/Fishing Derby (Canal 3 - Intellivision).bin" roms/fishing_derby)
-file(REMOVE "roms/fishingDerb.7z")
+if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/roms/fishing_derby")
+    MESSAGE("Download Fishing Derby")
+    file(DOWNLOAD www.atarimania.com/pgedump.awp?id=13881 "${CMAKE_CURRENT_SOURCE_DIR}/roms/fishingDerb.7z")
+    execute_process(COMMAND ${CMAKE_COMMAND} -E tar -xf fishingDerb.7z
+        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/roms/")
+    file(RENAME "${CMAKE_CURRENT_SOURCE_DIR}/roms/Fishing Derby (Canal 3 - Intellivision).bin" "${CMAKE_CURRENT_SOURCE_DIR}/roms/fishing_derby")
+    file(REMOVE "${CMAKE_CURRENT_SOURCE_DIR}/roms/fishingDerb.7z")
+endif()
 
 # download frostbite
-file(DOWNLOAD http://www.atarimania.com/pgedump.awp?id=11601 ../roms/frostbite.7z)
-execute_process(COMMAND ${CMAKE_COMMAND} -E tar -xf frostbite.7z
-        WORKING_DIRECTORY ../roms)
-file(RENAME "roms/Frostbite.bin" roms/frostbite)
-file(REMOVE "roms/frostbite.7z")
+if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/roms/frostbite")
+    MESSAGE("Download Frostbite")
+    file(DOWNLOAD http://www.atarimania.com/pgedump.awp?id=11601 "${CMAKE_CURRENT_SOURCE_DIR}/roms/frostbite.7z")
+    execute_process(COMMAND ${CMAKE_COMMAND} -E tar -xf frostbite.7z
+            WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/roms/")
+    file(RENAME "${CMAKE_CURRENT_SOURCE_DIR}/roms/Frostbite.bin" "${CMAKE_CURRENT_SOURCE_DIR}/roms/frostbite")
+    file(REMOVE "${CMAKE_CURRENT_SOURCE_DIR}/roms/frostbite.7z")
+endif()
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE ROOT_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
