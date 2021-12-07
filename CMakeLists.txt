@@ -27,7 +27,7 @@ if(NOT ${CMAKE_GENERATOR} MATCHES "Visual Studio.*")
         set(CMAKE_BUILD_TYPE Debug)
         set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Debug)
         message(${CMAKE_CXX_FLAGS_DEBUG})
-        set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -pg -Wall -O0 --coverage")
+        set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -Wall -O0 --coverage")
         message(${CMAKE_CXX_FLAGS_DEBUG})
     else()
         MESSAGE("Generate Release project")
@@ -77,31 +77,17 @@ if (WIN32)
     endif()
 endif()
 
-
-
 # *******************************************
-# ************** Executable  ****************
+# *********** Download Roms  ****************
 # *******************************************
 
-
-file(GLOB_RECURSE
-        ALEGelati_files
-        ./src/*.cpp
-        ./src/*.h
-        )
-
-include_directories(${GEGELATI_INCLUDE_DIRS})
-
-add_executable(${PROJECT_NAME} ${ALEGelati_files})
-target_link_libraries(${PROJECT_NAME} ${GEGELATI_LIBRARIES})
-target_link_libraries(${PROJECT_NAME} ale::ale-lib)
 
 # download fishing derby
 if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/roms/fishing_derby")
     MESSAGE("Download Fishing Derby")
     file(DOWNLOAD www.atarimania.com/pgedump.awp?id=13881 "${CMAKE_CURRENT_SOURCE_DIR}/roms/fishingDerb.7z")
     execute_process(COMMAND ${CMAKE_COMMAND} -E tar -xf fishingDerb.7z
-        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/roms/")
+            WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/roms/")
     file(RENAME "${CMAKE_CURRENT_SOURCE_DIR}/roms/Fishing Derby (Canal 3 - Intellivision).bin" "${CMAKE_CURRENT_SOURCE_DIR}/roms/fishing_derby")
     file(REMOVE "${CMAKE_CURRENT_SOURCE_DIR}/roms/fishingDerb.7z")
 endif()
@@ -116,4 +102,29 @@ if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/roms/frostbite")
     file(REMOVE "${CMAKE_CURRENT_SOURCE_DIR}/roms/frostbite.7z")
 endif()
 
+# *******************************************
+# ************** Executable  ****************
+# *******************************************
+
+# **** ALEGegeglati target ****
+file(GLOB_RECURSE
+        ALEGelati_files
+        ./src/*.cpp
+        ./src/*.h
+        )
+
+include_directories(${GEGELATI_INCLUDE_DIRS})
+
+add_executable(${PROJECT_NAME} ${ALEGelati_files})
+target_link_libraries(${PROJECT_NAME} ${GEGELATI_LIBRARIES} ale::ale-lib)
+
 target_compile_definitions(${PROJECT_NAME} PRIVATE ROOT_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
+
+
+# **** Codegen Target *****
+list(REMOVE_ITEM
+        ALEGelati_files
+        ${CMAKE_CURRENT_SOURCE_DIR}/./src/learningExample.cpp)
+add_executable(${PROJECT_NAME}Codegen ${ALEGelati_files} ${CMAKE_CURRENT_SOURCE_DIR}/./src/codegen/codegen.cpp)
+target_compile_definitions(${PROJECT_NAME}Codegen PRIVATE ROOT_DIR="${CMAKE_SOURCE_DIR}")
+target_link_libraries(${PROJECT_NAME}Codegen ${GEGELATI_LIBRARIES} ale::ale-lib)

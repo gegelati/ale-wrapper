@@ -29,11 +29,14 @@ protected:
   float totalReward;
 
 public:
+
+    static const size_t SCREEN_SIZE;
+
   /**
    * Constructor.
    */
   ALEWrapper(const std::string &ROM_NAME, int actions, bool display = false)
-      : LearningEnvironment(actions), screen(1344), totalReward(0) {
+      : LearningEnvironment(actions), screen(SCREEN_SIZE), totalReward(0) {
     setAle(ROM_NAME, display);
 
     this->reset(0);

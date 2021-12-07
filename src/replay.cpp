@@ -9,28 +9,12 @@
 
 #include "ALEWrapper.h"
 #include "replay.h"
-
+#include "instructions.h"
 
 int agentTest() {
     // Create the instruction set for programs
     Instructions::Set set;
-    auto minus = [](double a, double b) -> double { return a - b; };
-    auto add = [](double a, double b) -> double { return a + b; };
-    auto times = [](double a, double b) -> double { return a * b; };
-    auto divide = [](double a, double b) -> double { return a / b; };
-    auto cond = [](double a, double b) -> double { return a < b ? -a : a; };
-    auto cos = [](double a) -> double { return std::cos(a); };
-    auto ln = [](double a) -> double { return std::log(a); };
-    auto exp = [](double a) -> double { return std::exp(a); };
-
-    set.add(*(new Instructions::LambdaInstruction<double, double>(minus)));
-    set.add(*(new Instructions::LambdaInstruction<double, double>(add)));
-    set.add(*(new Instructions::LambdaInstruction<double, double>(times)));
-    set.add(*(new Instructions::LambdaInstruction<double, double>(divide)));
-    set.add(*(new Instructions::LambdaInstruction<double, double>(cond)));
-    set.add(*(new Instructions::LambdaInstruction<double>(cos)));
-    set.add(*(new Instructions::LambdaInstruction<double>(ln)));
-    set.add(*(new Instructions::LambdaInstruction<double>(exp)));
+    fillInstructionSet(set);
 
     // Instantiate the LearningEnvironment
     auto le = ALEWrapper("roms/frostbite",18,true);

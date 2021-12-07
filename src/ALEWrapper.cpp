@@ -1,5 +1,7 @@
 #include "ALEWrapper.h"
 
+const size_t ALEWrapper::SCREEN_SIZE = 1344;
+
 void ALEWrapper::play(uint64_t actionID) {
     ale.act(legal_actions[actionID]);
     updateScreen();
