@@ -33,7 +33,7 @@ int main(int argc, char** argv ){
         exit(1);
     }
 
-    std::cout << "Printing C code from " << inputFile << "." << std::endl;
+
 
     // Create the instruction set for programs
     Instructions::Set set;
@@ -51,11 +51,14 @@ int main(int argc, char** argv ){
     TPG::TPGGraph dotGraph(dotEnv);
 
     // Load graph
+    std::cout << "Loading dot file from " << inputFile << "." << std::endl;
     std::string filename(inputFile);
     File::TPGGraphDotImporter dot(filename.c_str(), dotEnv, dotGraph);
     dot.importGraph();
 
-    CodeGen::TPGGenerationEngine tpggen("ale", dotGraph, "codegen/");
+    // Print graph
+    std::cout << "Printing C code." << std::endl;
+    CodeGen::TPGGenerationEngine tpggen("ale", dotGraph, ROOT_DIR "/codegen/");
     tpggen.generateTPGGraph();
 
     return 0;
