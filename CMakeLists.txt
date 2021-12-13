@@ -128,3 +128,8 @@ list(REMOVE_ITEM
 add_executable(${PROJECT_NAME}Codegen ${ALEGelati_files} ${CMAKE_CURRENT_SOURCE_DIR}/./src/codegen/codegen.cpp)
 target_compile_definitions(${PROJECT_NAME}Codegen PRIVATE ROOT_DIR="${CMAKE_SOURCE_DIR}")
 target_link_libraries(${PROJECT_NAME}Codegen ${GEGELATI_LIBRARIES} ale::ale-lib)
+# **** InferenceTPG Target ****
+add_executable(${PROJECT_NAME}InferenceTPG ${ALEGelati_files} ${CMAKE_CURRENT_SOURCE_DIR}/./src/codegen/inferenceTPG.cpp)
+target_link_libraries(${PROJECT_NAME}InferenceTPG ${GEGELATI_LIBRARIES} ale::ale-lib)
+
+target_compile_definitions(${PROJECT_NAME}InferenceTPG PRIVATE ROOT_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
