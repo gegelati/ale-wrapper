@@ -15,12 +15,15 @@ int main(int argc, char** argv ){
     char option;
     char inputFile[100];
     char paramFile[100];
+    char rom[50];
     auto paramInfo = "Unrecognised option. Valid options are \'-i inputFile.dot\' \'-c paramFile.json\'.";
 
     bool inputProvided = false;
     strcpy(paramFile, ROOT_DIR "/params.json");
-    while((option = getopt(argc, argv, "i:c:")) != -1){
+    strcpy(rom, "frostbite");
+    while((option = getopt(argc, argv, "r:i:c:")) != -1){
         switch (option) {
+            case 'r': strcpy(rom, optarg); break;
             case 'i': strcpy(inputFile, optarg); inputProvided = true; break;
             case 'c': strcpy(paramFile, optarg); break;
             default: std::cout << paramInfo << std::endl; exit(1);
@@ -33,7 +36,9 @@ int main(int argc, char** argv ){
     }
 
     // Instantiate the LearningEnvironment
-    ALEWrapper le(ROOT_DIR "/roms/frostbite",18,false);
+    char romPath[50];
+    sprintf(romPath, ROOT_DIR "/roms/%s", rom);
+    ALEWrapper le(romPath,18,false);
     le.reset(0);
 
     // Create the instruction set for programs
@@ -61,32 +66,32 @@ int main(int argc, char** argv ){
     uint64_t actions[18000];
     // measure time
     std::cout << "Play with generated code" << std::endl;
-    auto start = std::chrono::system_clock::now();
+    auto start = std::chrono::high_resolution_clock::now();
     while(nbActions < 18000 && !le.isTerminal()){
         actions[nbActions]  = ((TPG::TPGAction*)(tee.executeFromRoot(* root).back()))->getActionID();
         le.doAction(actions[nbActions]);
         nbActions++;
     }
 
-    auto stop = std::chrono::system_clock::now();
+    auto stop = std::chrono::high_resolution_clock::now();
 
-    std::cout << "Total score: " << le.getScore() << std::endl;
+    std::cout << "Total score: " << le.getScore() << " in "  << nbActions << " actions." << std::endl;
 
     // do a replay to subtract non-inference time
     size_t iter = 0;
     le.reset(0);
 
     std::cout << "Replay environment without TPG" << std::endl;
-    auto startReplay = std::chrono::system_clock::now();
+    auto startReplay = std::chrono::high_resolution_clock::now();
     while (iter < nbActions) {
         // Do the action
         le.doAction(actions[iter]);
 
         iter++;
     }
-    auto stopReplay = std::chrono::system_clock::now();
+    auto stopReplay = std::chrono::high_resolution_clock::now();
 
-    std::cout << "Total replay score: " << le.getScore() << std::endl;
+    std::cout << "Total replay score: " << le.getScore() << " in "  << nbActions << " actions." << std::endl;
 
     auto totalTime = ((std::chrono::duration<double>)(stop - start)).count();
     auto replayTime = ((std::chrono::duration<double>)(stopReplay - startReplay)).count();
