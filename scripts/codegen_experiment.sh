@@ -20,7 +20,7 @@ for game in "${games[@]}"; do
     # Start games
     for i in ${seeds[*]}; do
         echo "# Training on $game with seed $i.  ($(date +'%D %X'))"
-        ../build/Release/ALEGegelati -s $i -r $game -p $threads -c ../param-kelly.json 1>dirtyLog 2> /dev/null
+        ../build/Release/ALEGegelati -s $i -r $game -p $threads -c ../params-kelly.json 1>dirtyLog 2> /dev/null
 
         # Print last line of log
         id=$(printf "%02d" $threads)
