@@ -79,9 +79,12 @@ int main(int argc, char ** argv) {
     File::TPGGraphDotExporter dotExporter(dotPath, la.getTPGGraph());
     // Train for NB_GENERATIONS generations
     for (int i = 0; i < params.nbGenerations; i++) {
+#define PRINT_ALL_DOT 0
+#if PRINT_ALL_DOT
         sprintf(dotPath, "out_%04d.%s.%d.t%02d.dot", i, rom, seed, nbThreads);
         dotExporter.setNewFilePath(dotPath);
         dotExporter.print();
+#endif
         la.trainOneGeneration(i);
     }
 
