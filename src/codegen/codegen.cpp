@@ -56,9 +56,15 @@ int main(int argc, char** argv ){
     File::TPGGraphDotImporter dot(filename.c_str(), dotEnv, dotGraph);
     dot.importGraph();
 
+    // Get stats on graph to get the required stack size
+    std::cout << "Analyze graph." << std::endl;
+    TPG::PolicyStats ps;
+    ps.setEnvironment(dotEnv);
+    ps.analyzePolicy(dotGraph.getRootVertices().front());
+
     // Print graph
     std::cout << "Printing C code." << std::endl;
-    CodeGen::TPGGenerationEngine tpggen("ale", dotGraph, ROOT_DIR "/codegen/");
+    CodeGen::TPGGenerationEngine tpggen("ale", dotGraph, ROOT_DIR "/codegen/", ps.maxPolicyDepth);
     tpggen.generateTPGGraph();
 
     return 0;
