@@ -43,6 +43,15 @@ else()
     add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 endif()
 
+# Add for profiling
+if(${PROFILING})
+    MESSAGE("Compiled for profiling (i.e. gprof). ALE must be compiled without -fomit-frame-pointer")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg")
+    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pg")
+    SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pg")
+    SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -pg")
+endif()
+
 # Add definitions for testing purposes
 if(${TESTING})
     MESSAGE("Testing mode")

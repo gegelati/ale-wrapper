@@ -3,7 +3,7 @@ set -e
 
 declare -a games=("alien"  "asteroids" "centipede"  "fishing_derby"  "frostbite")
 
-seeds=0  #`seq 0 4`
+seeds=`seq 0 4`
 threads=48
 
 echo "# Build all targets  ($(date +'%D %X'))"
@@ -39,6 +39,18 @@ for game in "${games[@]}"; do
             echo "# Run $run/5 generated code on $game with seed $i.  ($(date +'%D %X'))"
             ../build/Release/ALEGegelatiInferenceCodegen -r $game >> time.codegen.$game.$i.log
         done
+        
+        # Uncomment for profiling
+        # ../build/Release/ALEGegelatiInferenceCodegen -r $game > time_analysis.codegen.$game.$i.log
+        # gprof ../build/Release/ALEGegelatiInferenceCodegen gmon.out > analysis.txt
+        # NB_TEAM_VISITED=$(grep -Ec '^([0-9\.]*[[:space:]]*)* T[0-9]+$' analysis.txt)
+        # NB_PROG_VISITED=$(grep -Ec '^([0-9\.]*[[:space:]]*)* P[0-9]+$' analysis.txt)
+        # NB_PROG_EXEC=$(grep -Eoi "([0-9])*[[:space:]]*[0-9\.]+[[:space:]]*[0-9\.]+[[:space:]]*P[0-9]+$" analysis.txt | cut -d " " -f 1 | paste -sd+ | bc)
+        # NB_TEAM_EXEC=$(grep -Eoi "([0-9])*[[:space:]]*[0-9\.]+[[:space:]]*[0-9\.]+[[:space:]]*T[0-9]+$" analysis.txt | cut -d " " -f 1 | paste -sd+ | bc)
+        # echo "Nb teams visited:  $NB_TEAM_VISITED" > stats.codegen.$game.$i.log
+        # echo "Nb teams executed: $NB_TEAM_EXEC" >> stats.codegen.$game.$i.log
+        # echo "Nb progs visited:  $NB_PROG_VISITED" >> stats.codegen.$game.$i.log
+        # echo "Nb progs executed: $NB_PROG_EXEC" >> stats.codegen.$game.$imv analysis.txt analysis.$game.$i.txt
         
         for run in {1..5}; do
             echo "# Run $run/5 TPG on $game with seed $i.  ($(date +'%D %X'))"
