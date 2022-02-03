@@ -35,20 +35,69 @@ progs.remove("")
 progFile.close()
 
 # Filter unused prog
-# Remove progs Linking a visited team to a team never visited.
+# List all progs connecting a Visited team to another (or an action)
+usedProgs = []
+progDest = {}
 for line in inputFile:
     # Match Edge Team > Prog > Team lines
     if(re.match(r'\s*(T[0-9]+) -> (P[0-9]+) -> (T[0-9]+)', line)):
         teamSrc = re.sub(r'\s*(T[0-9]+) -> (P[0-9]+) -> (T[0-9]+)',r'\1',line).strip()
         prog = re.sub(r'\s*(T[0-9]+) -> (P[0-9]+) -> (T[0-9]+)',r'\2',line).strip()
         teamDst = re.sub(r'\s*(T[0-9]+) -> (P[0-9]+) -> (T[0-9]+)',r'\3',line).strip()
-
-        # Check absence of any of the two teams in visited teams
-        # Meaning the path of this program is never taken
-        if(not (teamSrc in teams and teamDst in teams)):
-            # If the program is in the list of executed programs, remove it
+        
+        # Keep a record of the destination team.
+        progDest[prog] = teamDst
+        
+        # Prog is used if Src AND DstTeam are visited
+        if(teamSrc in teams and teamDst in teams):
+            # The program is in the list of executed programs, keep it
             if(prog in progs):
-                progs.remove(prog)
+                usedProgs.append(prog)
+                
+    # Match Edge Team > Prog > Action lines          
+    if(re.match(r'\s*(T[0-9]+) -> (P[0-9]+) -> (A[0-9]+)', line)):
+        teamSrc = re.sub(r'\s*(T[0-9]+) -> (P[0-9]+) -> (A[0-9]+)',r'\1',line).strip()
+        prog = re.sub(r'\s*(T[0-9]+) -> (P[0-9]+) -> (A[0-9]+)',r'\2',line).strip()
+        actionDst = re.sub(r'\s*(T[0-9]+) -> (P[0-9]+) -> (A[0-9]+)',r'\3',line).strip()
+        
+        # Keep a record of the destination team.
+        progDest[prog] = actionDst
+        
+        # Prog is used if Src team is
+        if(teamSrc in teams):
+            # The program is in the list of executed programs, keep it
+            if(prog in progs):
+                usedProgs.append(prog)
+                
+    # Match Edge Team > Prog lines 
+    # (Dest of the prog must have been declared before)
+    if(re.match(r'\s*(T[0-9]+) -> (P[0-9]+)\s*\n', line)):
+        teamSrc = re.sub(r'\s*(T[0-9]+) -> (P[0-9]+)',r'\1',line).strip()
+        prog = re.sub(r'\s*(T[0-9]+) -> (P[0-9]+)',r'\2',line).strip()
+        dst = progDest[prog]
+        
+        if(re.match(r'T[0-9]+',dst)):
+            isDstTeam = True
+            isDstAction = False
+        
+        if(re.match(r'A[0-9]+',dst)):
+            isDstTeam = False
+            isDstAction = True
+        
+        # Prog is used if src team and dstTeam are
+        if(isDstTeam and teamSrc in teams and dst in teams):
+            # The program is in the list of executed programs, keep it
+            if(prog in progs):
+                usedProgs.append(prog)
+
+        # Prog is used if src team is
+        if(isDstAction and teamSrc in teams):
+            # The program is in the list of executed programs, keep it
+            if(prog in progs):
+                usedProgs.append(prog)
+
+# Keep used progs only
+progs = usedProgs
 
 # Rewind inputFile
 inputFile.seek(0)
@@ -116,7 +165,16 @@ for line in inputFile:
 
         # Checking source team and prog is sufficient since prog were already filtered.
         if(teamSrc in teams and prog in progs):
-            outputFile.write(line)
+            if(prog in progDest):
+                dst = progDest[prog]
+                progDest.pop(prog)
+
+            if(dst):
+                dstString = " -> {}".format(dst)
+            else:
+                dstString = ""
+
+            outputFile.write("\t\t{} -> {}{}\n".format(teamSrc, prog, dstString))
 
 
 # Close dot files
