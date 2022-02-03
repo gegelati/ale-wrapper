@@ -25,6 +25,9 @@ teamFile = open(teamFilePath, "r")
 progFile = open(progFilePath, "r")
 outputFile = open(outputFilePath, "w")
 
+if(not inputFile or not teamFile or not progFile or not outputFile):
+	exit
+
 # Load team and progs into a list.
 teams = teamFile.read().split('\n')
 teams.remove("")
@@ -112,7 +115,7 @@ for line in inputFile:
         dst = re.sub(r'\s*(T[0-9]+) -> (P[0-9]+)( -> ((T|A)[0-9]+))?',r'\4',line).strip()
 
         # Checking source team and prog is sufficient since prog were already filtered.
-        if(teamSrc in teams and prog in progs):
+        if(prog in progs):
             if(re.match(r'A[0-9]+', dst)):
                 actions.append(dst)
 
