@@ -16,6 +16,7 @@ double* in1;
 int main(int argc, char** argv){
 
     char option;
+    int nbGames = 1;
     char rom[50];
     strcpy(rom, "frostbite");
     while((option = getopt(argc, argv, "r:")) != -1){
@@ -41,12 +42,17 @@ int main(int argc, char** argv){
     int nbActions = 0;
     uint64_t actions[18000];
     // measure time
-    std::cout << "Play with generated code" << std::endl;
+    std::cout << "Play "<<nbGames<<" games with generated code" << std::endl;
     auto start = std::chrono::high_resolution_clock::now();
-    while(nbActions < 18000 && !le.isTerminal()){
-        actions[nbActions] = inferenceTPG();
-        le.doAction(actions[nbActions]);
-        nbActions++;
+
+    for(unsigned int repet = 0; repet<nbGames ; repet++) {
+        nbActions = 0;
+        le.reset(0);
+        while (nbActions < 18000 && !le.isTerminal()) {
+            actions[nbActions] = inferenceTPG();
+            le.doAction(actions[nbActions]);
+            nbActions++;
+        }
     }
 
     auto stop = std::chrono::high_resolution_clock::now();
@@ -54,16 +60,18 @@ int main(int argc, char** argv){
     std::cout << "Total score: " << le.getScore() << " in "  << nbActions << " actions." << std::endl;
 
     // do a replay to subtract non-inference time
-    size_t iter = 0;
-    le.reset(0);
-
     std::cout << "Replay environment without TPG" << std::endl;
     auto startReplay = std::chrono::high_resolution_clock::now();
-    while (iter < nbActions) {
-        // Do the action
-        le.doAction(actions[iter]);
 
-        iter++;
+    for(unsigned int repet = 0; repet<nbGames ; repet++) {
+        size_t iter = 0;
+        le.reset(0);
+        while (iter < nbActions) {
+            // Do the action
+            le.doAction(actions[iter]);
+
+            iter++;
+        }
     }
     auto stopReplay = std::chrono::high_resolution_clock::now();
 
@@ -71,7 +79,7 @@ int main(int argc, char** argv){
 
     auto totalTime = ((std::chrono::duration<double>)(stop - start)).count();
     auto replayTime = ((std::chrono::duration<double>)(stopReplay - startReplay)).count();
-    std::cout << std::setprecision(6) << " Total time: " << totalTime << std::endl;
-    std::cout << std::setprecision(6) << "  Env. time: " << replayTime << std::endl;
-    std::cout << std::setprecision(6) << "Infer. time: " << totalTime-replayTime << std::endl;
+    std::cout << std::setprecision(6) << " Total time: " << totalTime/(double)nbGames << std::endl;
+    std::cout << std::setprecision(6) << "  Env. time: " << replayTime/(double)nbGames << std::endl;
+    std::cout << std::setprecision(6) << "Infer. time: " << (totalTime-replayTime)/(double)nbGames << std::endl;
 }
