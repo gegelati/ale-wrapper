@@ -104,5 +104,12 @@ int main(int argc, char** argv ){
     CodeGen::TPGGenerationEngine tpggen("ale", dotGraph, ROOT_DIR "/codegen/", 3*ps.maxPolicyDepth);
     tpggen.generateTPGGraph();
 
+    // Export cleaned dot file
+    std::cout << "Printing cleaned dot file." << std::endl;
+    char bestDot[150];
+    sprintf(bestDot, "out_best_cleaned.%s.%d.t%02d.dot", rom, seed, 48);
+    File::TPGGraphDotExporter dotExporter(bestDot, dotGraph);
+    dotExporter.print();
+
     return 0;
 }
