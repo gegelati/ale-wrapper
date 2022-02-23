@@ -76,7 +76,7 @@ int main(int argc, char ** argv) {
     // Create an exporter for all graphs
     char dotPath[50];
     sprintf(dotPath, "out_0000.%s.%d.t%02d.dot", rom, seed, nbThreads);
-    File::TPGGraphDotExporter dotExporter(dotPath, la.getTPGGraph());
+    File::TPGGraphDotExporter dotExporter(dotPath, *la.getTPGGraph());
     // Train for NB_GENERATIONS generations
     for (int i = 0; i < params.nbGenerations; i++) {
 #define PRINT_ALL_DOT 0
@@ -92,7 +92,7 @@ int main(int argc, char ** argv) {
     la.keepBestPolicy();
 
     // Clear introns instructions
-    la.getTPGGraph().clearProgramIntrons();
+    la.getTPGGraph()->clearProgramIntrons();
     char bestDot[50];
 
     // Export the graph
@@ -101,7 +101,7 @@ int main(int argc, char ** argv) {
     dotExporter.print();
 
     TPG::PolicyStats ps;
-    ps.setEnvironment(la.getTPGGraph().getEnvironment());
+    ps.setEnvironment(la.getTPGGraph()->getEnvironment());
     ps.analyzePolicy(la.getBestRoot().first);
     std::ofstream bestStats;
     sprintf(bestPolicyStatsPath, "out_best_stats.%s.%d.t%02d.md", rom, seed, nbThreads);
