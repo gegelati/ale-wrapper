@@ -27,7 +27,7 @@ for game in "${games[@]}"; do
         tail -n 1 "out.$game.$i.t$id.std"
         
         echo "# Codegen on $game with seed $i.  ($(date +'%D %X'))"
-        ../build/Release/ALEGegelatiCodegen -i "out_best.$game.$i.t$id.dot" -c ../params-kelly.json 
+        ../build/Release/ALEGegelatiCodegen -s $i -r $game -i "out_best.$game.$i.t$id.dot" -c ../params-kelly.json 
         
         echo "# Build generated code on $game with seed $i.  ($(date +'%D %X'))"
         pushd .
@@ -54,7 +54,7 @@ for game in "${games[@]}"; do
         
         for run in {1..5}; do
             echo "# Run $run/5 TPG on $game with seed $i.  ($(date +'%D %X'))"
-            ../build/Release/ALEGegelatiInferenceTPG -r $game -i "out_best.$game.$i.t$id.dot" -c ../params-kelly.json >> time.tpg.$game.$i.log
+            ../build/Release/ALEGegelatiInferenceTPG -r $game -i "out_best_cleaned.$game.$i.t$id.dot" -c ../params-kelly.json >> time.tpg.$game.$i.log
         done
         
     done
