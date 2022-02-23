@@ -15,7 +15,7 @@ int main(int argc, char** argv ){
     char option;
     char inputFile[100];
     char paramFile[100];
-    char rom[50];
+    char rom[150];
     auto paramInfo = "Unrecognised option. Valid options are \'-i inputFile.dot\' \'-c paramFile.json\'.";
 
     bool inputProvided = false;
@@ -36,7 +36,7 @@ int main(int argc, char** argv ){
     }
 
     // Instantiate the LearningEnvironment
-    char romPath[50];
+    char romPath[150];
     sprintf(romPath, ROOT_DIR "/roms/%s", rom);
     ALEWrapper le(romPath,18,false);
     le.reset(0);

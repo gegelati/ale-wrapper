@@ -26,7 +26,7 @@ int main(int argc, char** argv){
     }
 
     // Instantiate the LearningEnvironment
-    char romPath[50];
+    char romPath[150];
     sprintf(romPath, ROOT_DIR "/roms/%s", rom);
     auto le = ALEWrapper(romPath,18,false);
     le.reset(0);
