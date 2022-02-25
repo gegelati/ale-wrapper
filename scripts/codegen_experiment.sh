@@ -35,6 +35,7 @@ for game in "${games[@]}"; do
         cmake --build . --target ALEGegelatiInferenceCodegen
         popd
         
+	echo "score;actions;total_time;env_time;tpg_time" > time.codegen.$game.$i.log
         for run in {1..5}; do
             echo "# Run $run/5 generated code on $game with seed $i.  ($(date +'%D %X'))"
             ../build/Release/ALEGegelatiInferenceCodegen -r $game >> time.codegen.$game.$i.log
@@ -52,6 +53,7 @@ for game in "${games[@]}"; do
         # echo "Nb progs visited:  $NB_PROG_VISITED" >> stats.codegen.$game.$i.log
         # echo "Nb progs executed: $NB_PROG_EXEC" >> stats.codegen.$game.$imv analysis.txt analysis.$game.$i.txt
         
+	echo "score;actions;total_time;env_time;tpg_time" > time.tpg.$game.$i.log
         for run in {1..5}; do
             echo "# Run $run/5 TPG on $game with seed $i.  ($(date +'%D %X'))"
             ../build/Release/ALEGegelatiInferenceTPG -r $game -i "out_best_cleaned.$game.$i.t$id.dot" -c ../params-kelly.json >> time.tpg.$game.$i.log
