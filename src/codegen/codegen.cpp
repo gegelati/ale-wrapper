@@ -13,7 +13,7 @@
 int main(int argc, char** argv ){
 
     // Get option
-    char option;
+    signed char option;
     unsigned int seed = 0;
     char inputFile[100];
     char paramFile[100];

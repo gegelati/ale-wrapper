@@ -14,7 +14,7 @@
 int main(int argc, char** argv ){
 
     // Get option
-    char option;
+    signed char option;
     int nbGames = 1;
     char inputFile[100];
     char paramFile[100];

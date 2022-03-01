@@ -17,7 +17,7 @@ double* in1;
 
 int main(int argc, char** argv){
 
-    char option;
+    signed char option;
     int nbGames = 1;
     char rom[50];
     strcpy(rom, "frostbite");
