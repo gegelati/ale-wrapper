@@ -101,8 +101,9 @@ int main(int argc, char** argv ){
 
     // Print graph
     std::cout << "Printing C code." << std::endl;
-    CodeGen::TPGGenerationEngine tpggen("ale", dotGraph, ROOT_DIR "/codegen/", 3*ps.maxPolicyDepth);
-    tpggen.generateTPGGraph();
+	CodeGen::TPGGenerationEngineFactory factory(CodeGen::TPGGenerationEngineFactory::switchMode);
+    std::unique_ptr<CodeGen::TPGGenerationEngine> tpggen = factory.create("ale", dotGraph, ROOT_DIR "/codegen/");
+    tpggen->generateTPGGraph();
 
     // Export cleaned dot file
     std::cout << "Printing cleaned dot file." << std::endl;
