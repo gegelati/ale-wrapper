@@ -63,27 +63,42 @@ int main(int argc, char** argv ){
     const TPG::TPGVertex* root = dotGraph.getRootVertices().front();
 
     // Play the game once to identify useful edges & vertices
+    std::ofstream ofs ("tpg_orig.txt", std::ofstream::out);
     TPG::TPGExecutionEngineInstrumented tee(dotEnv);
     int nbActions = 0;
     std::cout << "Play with TPG code" << std::endl;
     while(nbActions < 18000 && !le.isTerminal()){
-        le.doAction(((TPG::TPGAction*)(tee.executeFromRoot(* root).back()))->getActionID());
+    	auto actionID = ((TPG::TPGAction*)(tee.executeFromRoot(* root).back()))->getActionID();
+        le.doAction(actionID);
+        ofs << nbActions << " " << actionID << std::endl;
         nbActions++;
     }
-    std::cout << "Total score: " << le.getScore() << " in "  << nbActions << " actions." << std::endl;
+    auto scoreOrig = le.getScore();
+    auto nbActionsOrig = nbActions;
+    std::cout << "Total score: " << scoreOrig << " in "  << nbActionsOrig << " actions." << std::endl;
+    ofs.close();
 
     // Clean the unused vertices & teams
     ((const TPG::TPGInstrumentedFactory&)dotGraph.getFactory()).clearUnusedTPGGraphElements(dotGraph);
 
     // Play the game again to check the result remains the same.
+    std::ofstream ofs2 ("tpg_clean.txt", std::ofstream::out);
     nbActions = 0;
     le.reset(0);
     std::cout << "Play with cleaned TPG code" << std::endl;
     while(nbActions < 18000 && !le.isTerminal()){
-        le.doAction(((TPG::TPGAction*)(tee.executeFromRoot(* root).back()))->getActionID());
+    	auto actionID = ((TPG::TPGAction*)(tee.executeFromRoot(* root).back()))->getActionID();
+        le.doAction(actionID);
+        ofs2 << nbActions << " " << actionID << std::endl;
         nbActions++;
     }
     std::cout << "Total score: " << le.getScore() << " in "  << nbActions << " actions." << std::endl;
+    ofs.close();
+
+    if(le.getScore() != scoreOrig || nbActions != nbActionsOrig){
+        std::cout << "Determinism was lost during graph cleaning." << std::endl;
+        exit(1);
+    }
 
     // Get stats on graph to get the required stack size
     std::cout << "Analyze graph." << std::endl;
