@@ -9,13 +9,16 @@
 #include "../ALEWrapper.h"
 #include "../instructions.h"
 
+#define CSV_OUTPUT 1
+
 int main(int argc, char** argv ){
 
     // Get option
-    char option;
+    signed char option;
+    int nbGames = 1;
     char inputFile[100];
     char paramFile[100];
-    char rom[50];
+    char rom[150];
     auto paramInfo = "Unrecognised option. Valid options are \'-i inputFile.dot\' \'-c paramFile.json\'.";
 
     bool inputProvided = false;
@@ -36,7 +39,7 @@ int main(int argc, char** argv ){
     }
 
     // Instantiate the LearningEnvironment
-    char romPath[50];
+    char romPath[150];
     sprintf(romPath, ROOT_DIR "/roms/%s", rom);
     ALEWrapper le(romPath,18,false);
     le.reset(0);
@@ -54,7 +57,9 @@ int main(int argc, char** argv ){
 
 
     // Load graph
+#ifndef CSV_OUTPUT
     std::cout << "Loading dot file from " << inputFile << "." << std::endl;
+#endif
     std::string filename(inputFile);
     File::TPGGraphDotImporter dot(filename.c_str(), dotEnv, dotGraph);
     dot.importGraph();
@@ -63,39 +68,47 @@ int main(int argc, char** argv ){
     // Play the game
     TPG::TPGExecutionEngine tee(dotEnv);
     int nbActions = 0;
-    uint64_t actions[18000];
+    // uint64_t actions[18000];
     // measure time
-    std::cout << "Play with generated code" << std::endl;
-    auto start = std::chrono::high_resolution_clock::now();
-    while(nbActions < 18000 && !le.isTerminal()){
-        actions[nbActions]  = ((TPG::TPGAction*)(tee.executeFromRoot(* root).back()))->getActionID();
-        le.doAction(actions[nbActions]);
-        nbActions++;
+#ifndef CSV_OUTPUT
+    std::cout << "Play "<<nbGames<<" games with generated code" << std::endl;
+#endif
+    double tpgTime = 0.0;
+    double envTime = 0.0;
+    double globTime = 0.0;
+
+    for(unsigned int repet = 0; repet<nbGames ; repet++) {
+        nbActions = 0;
+        le.reset(0);
+        auto startGlobal = std::chrono::high_resolution_clock::now();
+        while (nbActions < 18000 && !le.isTerminal()) {
+
+            auto start = std::chrono::high_resolution_clock::now();
+            uint64_t action  = ((TPG::TPGAction*)(tee.executeFromRoot(* root).back()))->getActionID();
+            auto stop = std::chrono::high_resolution_clock::now();
+            tpgTime +=((std::chrono::duration<double>)(stop - start)).count();
+
+            start = std::chrono::high_resolution_clock::now();
+            le.doAction(action);
+            stop = std::chrono::high_resolution_clock::now();
+            envTime +=((std::chrono::duration<double>)(stop - start)).count();
+            nbActions++;
+        }
+        auto stopGlobal = std::chrono::high_resolution_clock::now();
+        globTime += ((std::chrono::duration<double>)(stopGlobal - startGlobal)).count();
     }
 
-    auto stop = std::chrono::high_resolution_clock::now();
-
+#ifndef CSV_OUTPUT
     std::cout << "Total score: " << le.getScore() << " in "  << nbActions << " actions." << std::endl;
 
-    // do a replay to subtract non-inference time
-    size_t iter = 0;
-    le.reset(0);
+    std::cout << std::setprecision(6) << " Total time: " << globTime/(double)nbGames << std::endl;
+    std::cout << std::setprecision(6) << "  Env. time: " << envTime/(double)nbGames << std::endl;
+    std::cout << std::setprecision(6) << "Infer. time: " << tpgTime/(double)nbGames << std::endl;
+#else
+    std::cout << le.getScore() << " ; "  << nbActions ;
 
-    std::cout << "Replay environment without TPG" << std::endl;
-    auto startReplay = std::chrono::high_resolution_clock::now();
-    while (iter < nbActions) {
-        // Do the action
-        le.doAction(actions[iter]);
-
-        iter++;
-    }
-    auto stopReplay = std::chrono::high_resolution_clock::now();
-
-    std::cout << "Total replay score: " << le.getScore() << " in "  << nbActions << " actions." << std::endl;
-
-    auto totalTime = ((std::chrono::duration<double>)(stop - start)).count();
-    auto replayTime = ((std::chrono::duration<double>)(stopReplay - startReplay)).count();
-    std::cout << std::setprecision(6) << " Total time: " << totalTime << std::endl;
-    std::cout << std::setprecision(6) << "  Env. time: " << replayTime << std::endl;
-    std::cout << std::setprecision(6) << "Infer. time: " << totalTime-replayTime << std::endl;
+    std::cout  << " ; " << globTime/(double)nbGames;
+    std::cout  << " ; " << envTime/(double)nbGames ;
+    std::cout  << " ; " << tpgTime/(double)nbGames << std::endl;
+#endif
 }

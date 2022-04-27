@@ -50,7 +50,7 @@ int main(int argc, char ** argv) {
     File::ParametersParser::loadParametersFromJson(paramFile,params);
     params.nbThreads = nbThreads;
 
-    char romPath[50];
+    char romPath[150];
     sprintf(romPath, ROOT_DIR "/roms/%s", rom);
     ALEWrapper le(romPath, 18);
 
@@ -60,23 +60,23 @@ int main(int argc, char ** argv) {
     la.init(seed);
 
     // Basic Logger
-    char logPath[50];
+    char logPath[150];
     sprintf(logPath, "out.%s.%d.t%02d.std", rom, seed, nbThreads);
     std::ofstream logStream;
     logStream.open(logPath);
     Log::LABasicLogger log(la, logStream);
 
     // File for logging best policy stat.
-    char bestPolicyStatsPath[50];
+    char bestPolicyStatsPath[150];
     sprintf(bestPolicyStatsPath, "bestPolicyStats.%s.%d.t%02d.md", rom, seed, nbThreads);
     std::ofstream stats;
     stats.open(bestPolicyStatsPath);
     Log::LAPolicyStatsLogger logStats(la, stats);
 
     // Create an exporter for all graphs
-    char dotPath[50];
+    char dotPath[150];
     sprintf(dotPath, "out_0000.%s.%d.t%02d.dot", rom, seed, nbThreads);
-    File::TPGGraphDotExporter dotExporter(dotPath, la.getTPGGraph());
+    File::TPGGraphDotExporter dotExporter(dotPath, *la.getTPGGraph());
     // Train for NB_GENERATIONS generations
     for (int i = 0; i < params.nbGenerations; i++) {
 #define PRINT_ALL_DOT 0
@@ -92,8 +92,8 @@ int main(int argc, char ** argv) {
     la.keepBestPolicy();
 
     // Clear introns instructions
-    la.getTPGGraph().clearProgramIntrons();
-    char bestDot[50];
+    la.getTPGGraph()->clearProgramIntrons();
+    char bestDot[150];
 
     // Export the graph
     sprintf(bestDot, "out_best.%s.%d.t%02d.dot", rom, seed, nbThreads);
@@ -101,7 +101,7 @@ int main(int argc, char ** argv) {
     dotExporter.print();
 
     TPG::PolicyStats ps;
-    ps.setEnvironment(la.getTPGGraph().getEnvironment());
+    ps.setEnvironment(la.getTPGGraph()->getEnvironment());
     ps.analyzePolicy(la.getBestRoot().first);
     std::ofstream bestStats;
     sprintf(bestPolicyStatsPath, "out_best_stats.%s.%d.t%02d.md", rom, seed, nbThreads);

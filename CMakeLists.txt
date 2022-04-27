@@ -20,6 +20,7 @@ if(NOT ${CMAKE_GENERATOR} MATCHES "Visual Studio.*")
 
     # Link with pthread
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -latomic")
 
     # Debug or release
     if(CMAKE_BUILD_TYPE MATCHES "Debug")
@@ -124,8 +125,11 @@ file(GLOB
 
 include_directories(${GEGELATI_INCLUDE_DIRS})
 
-add_executable(${PROJECT_NAME} ${ALEGegelatiFiles})
-target_link_libraries(${PROJECT_NAME} ${GEGELATI_LIBRARIES} ale::ale-lib)
+
+add_executable(${PROJECT_NAME} ${ALEGegelatiFiles}) 
+
+target_link_libraries(${PROJECT_NAME} ${GEGELATI_LIBRARIES} ale::ale-lib -latomic)
+
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE ROOT_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
 
@@ -136,7 +140,7 @@ list(REMOVE_ITEM
         ${CMAKE_CURRENT_SOURCE_DIR}/./src/learningExample.cpp)
 add_executable(${PROJECT_NAME}Codegen ${ALEGegelatiFiles} ${CMAKE_CURRENT_SOURCE_DIR}/./src/codegen/codegen.cpp)
 target_compile_definitions(${PROJECT_NAME}Codegen PRIVATE ROOT_DIR="${CMAKE_SOURCE_DIR}")
-target_link_libraries(${PROJECT_NAME}Codegen ${GEGELATI_LIBRARIES} ale::ale-lib)
+target_link_libraries(${PROJECT_NAME}Codegen ${GEGELATI_LIBRARIES} ale::ale-lib -latomic)
 
 # **** Inference Codegen Target *****
 
@@ -152,12 +156,12 @@ set(CODEGEN ${SRC_CODEGEN}/ale.c ${SRC_CODEGEN}/ale_program.c ${SRC_CODEGEN}/ale
 set_source_files_properties(${CODEGEN} PROPERTIES GENERATED TRUE)
 
 add_executable(${PROJECT_NAME}InferenceCodegen ${ALEGegelatiFiles} ${CODEGEN} ${CMAKE_CURRENT_SOURCE_DIR}/./src/codegen/inferenceCodegen.cpp)
-target_link_libraries(${PROJECT_NAME}InferenceCodegen ${GEGELATI_LIBRARIES} ale::ale-lib)
+target_link_libraries(${PROJECT_NAME}InferenceCodegen ${GEGELATI_LIBRARIES} ale::ale-lib -latomic)
 target_include_directories(${PROJECT_NAME}InferenceCodegen BEFORE PUBLIC ${SRC_CODEGEN})
 target_compile_definitions(${PROJECT_NAME}InferenceCodegen PRIVATE ROOT_DIR="${CMAKE_SOURCE_DIR}")
 
 # **** Inference TPG Target ****
 add_executable(${PROJECT_NAME}InferenceTPG ${ALEGegelatiFiles} ${CMAKE_CURRENT_SOURCE_DIR}/./src/codegen/inferenceTPG.cpp)
-target_link_libraries(${PROJECT_NAME}InferenceTPG ${GEGELATI_LIBRARIES} ale::ale-lib)
+target_link_libraries(${PROJECT_NAME}InferenceTPG ${GEGELATI_LIBRARIES} ale::ale-lib -latomic)
 
 target_compile_definitions(${PROJECT_NAME}InferenceTPG PRIVATE ROOT_DIR="${CMAKE_CURRENT_SOURCE_DIR}")

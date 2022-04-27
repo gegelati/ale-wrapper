@@ -19,6 +19,7 @@ void ALEWrapper::reset(size_t seed, Learn::LearningMode mode) {
     ale.reset_game();
 
     ale.setInt("random_seed", seed);
+    updateScreen();
 }
 
 std::vector<std::reference_wrapper<const Data::DataHandler>> ALEWrapper::getDataSources() {
