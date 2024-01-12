@@ -3,9 +3,11 @@ The purpose of this repository is to link the TPG [GEGELATI library](https://git
 
 ## How to install ?
 First of all, install the [GEGELATI library](https://github.com/gegelati/gegelati). 
+The wrapper has not been tested with gegelati v1.3.1 yet but it should work.
+
 To do so, you can execute the following commands :
 ```
-$ git clone https://github.com/gegelati/gegelati.git
+$ git clone --branch v1.2.0 https://github.com/gegelati/gegelati.git
 $ cd gegelati/bin
 $ cmake ..
 $ cmake --build . --target INSTALL # On Windows
